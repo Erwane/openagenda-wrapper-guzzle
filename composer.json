@@ -1,0 +1,54 @@
+{
+    "name": "erwane/openagenda-wrapper-guzzle",
+    "description": "Guzzle wrapper for erwane/openagenda-api package.",
+    "type": "library",
+    "keywords": [
+        "openagenda",
+        "api"
+    ],
+    "homepage": "https://github.com/Erwane/openagenda-wrapper-guzzle",
+    "support": {
+        "issues": "https://github.com/Erwane/openagenda-wrapper-guzzle/issues",
+        "source": "https://github.com/Erwane/openagenda-wrapper-guzzle"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Erwane",
+            "email": "erwane@phea.fr"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "openagenda/api-sdk": "dev-build-v3",
+        "guzzlehttp/guzzle": "^v7.0"
+    },
+    "require-dev": {
+        "cakephp/cakephp-codesniffer": "^4.0",
+        "phpunit/phpunit": "^8.5",
+        "symfony/var-dumper": "^v5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "OpenAgenda\\Wrapper\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "OpenAgenda\\Wrapper\\Test\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "config": {
+        "platform-check": true,
+        "sort-packages": true,
+        "prefered-install": "dist",
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "scripts": {
+        "cscheck": "php vendor/bin/phpcs -p -s src tests",
+        "csfix": "php vendor/bin/phpcbf src tests"
+    }
+}
