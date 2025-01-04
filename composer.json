@@ -4,7 +4,7 @@
     "type": "library",
     "keywords": [
         "openagenda",
-        "api"
+        "guzzle"
     ],
     "homepage": "https://github.com/Erwane/openagenda-wrapper-guzzle",
     "support": {
@@ -15,7 +15,8 @@
     "authors": [
         {
             "name": "Erwane",
-            "email": "erwane@phea.fr"
+            "email": "erwane@phea.fr",
+            "homepage": "https://erwane-breton.fr"
         }
     ],
     "require": {
@@ -38,17 +39,16 @@
             "OpenAgenda\\Wrapper\\Test\\": "tests/"
         }
     },
+    "scripts": {
+        "cscheck": "vendor/bin/phpcs -p -s src tests",
+        "csfix": "vendor/bin/phpcbf src tests"
+    },
     "minimum-stability": "stable",
     "config": {
         "platform-check": true,
         "sort-packages": true,
-        "prefered-install": "dist",
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
-    },
-    "scripts": {
-        "cscheck": "php vendor/bin/phpcs -p -s src tests",
-        "csfix": "php vendor/bin/phpcbf src tests"
     }
 }

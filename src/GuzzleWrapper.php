@@ -4,11 +4,10 @@ declare(strict_types=1);
 namespace OpenAgenda\Wrapper;
 
 use OpenAgenda\Client;
-use OpenAgenda\ClientWrapper\ClientWrapper;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class GuzzleWrapper extends ClientWrapper
+class GuzzleWrapper extends HttpWrapper
 {
     /**
      * @var \GuzzleHttp\Client|\Psr\Http\Client\ClientInterface

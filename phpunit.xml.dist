@@ -10,7 +10,7 @@
 
     <filter>
         <whitelist>
-            <directory suffix=".php" phpVersion="7.2">src/</directory>
+            <directory suffix=".php">src/</directory>
         </whitelist>
     </filter>
 </phpunit>
