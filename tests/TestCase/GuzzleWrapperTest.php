@@ -7,9 +7,12 @@ declare(strict_types=1);
 namespace OpenAgenda\Wrapper\Test\TestCase;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use League\Uri\Uri;
 use OpenAgenda\Wrapper\GuzzleWrapper;
+use OpenAgenda\Wrapper\HttpWrapperException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -21,7 +24,7 @@ class GuzzleWrapperTest extends TestCase
     /**
      * @var (\GuzzleHttp\Client&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $http;
+    protected $psr18Client;
 
     /**
      * @var \GuzzleHttp\Psr7\Request
@@ -37,7 +40,7 @@ class GuzzleWrapperTest extends TestCase
     {
         parent::setUp();
 
-        $this->http = $this->getMockBuilder(Client::class)
+        $this->psr18Client = $this->getMockBuilder(Client::class)
             ->onlyMethods(['request'])
             ->getMock();
 
@@ -103,7 +106,8 @@ class GuzzleWrapperTest extends TestCase
      */
     public function testPrepareOptions($options, $data, $expected)
     {
-        $wrapper = new GuzzleWrapper($this->http);
+        $wrapper = new GuzzleWrapper();
+        $wrapper->setClient($this->psr18Client);
 
         $results = $wrapper->prepareOptions($options, $data);
 
@@ -120,13 +124,64 @@ class GuzzleWrapperTest extends TestCase
             ->method('sendRequest')
             ->with($this->request);
 
-        $wrapper = new GuzzleWrapper($http);
+        $wrapper = new GuzzleWrapper();
+        $wrapper->setClient($http);
         $wrapper->sendRequest($this->request);
+    }
+
+    public static function dataExceptions(): array
+    {
+        return [
+            ['head'],
+            ['get'],
+            ['post'],
+            ['patch'],
+            ['delete'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataExceptions
+     */
+    public function testExceptions($method): void
+    {
+        $wrapper = new GuzzleWrapper();
+        $wrapper->setClient($this->psr18Client);
+
+        $request = new Request($method, (string)$this->uri);
+
+        $this->psr18Client->expects($this->once())
+            ->method('request')
+            ->willThrowException(new RequestException('error', $request));
+
+        $this->expectException(HttpWrapperException::class);
+        $this->expectExceptionMessage(sprintf('Wrapper %s request failed. error', strtoupper($method)));
+        $wrapper->{$method}($this->uri, []);
+    }
+
+    public function testExceptionContainGuzzleException(): void
+    {
+        $wrapper = new GuzzleWrapper();
+        $wrapper->setClient($this->psr18Client);
+
+        $request = new Request('GET', (string)$this->uri);
+        $this->psr18Client->expects($this->once())
+            ->method('request')
+            ->willThrowException(new RequestException('error', $request));
+
+        try {
+            $wrapper->get($this->uri);
+        } catch (HttpWrapperException $exception) {
+            $this->assertInstanceOf(GuzzleException::class, $exception->getPrevious());
+        }
     }
 
     public function testMethodHead()
     {
-        $this->http->expects($this->once())
+        $wrapper = new GuzzleWrapper();
+        $wrapper->setClient($this->psr18Client);
+
+        $this->psr18Client->expects($this->once())
             ->method('request')
             ->with(
                 'HEAD',
@@ -139,13 +194,16 @@ class GuzzleWrapperTest extends TestCase
                     ],
                 ]
             );
-        $wrapper = new GuzzleWrapper($this->http);
+
         $wrapper->head($this->uri);
     }
 
     public function testMethodGet()
     {
-        $this->http->expects($this->once())
+        $wrapper = new GuzzleWrapper();
+        $wrapper->setClient($this->psr18Client);
+
+        $this->psr18Client->expects($this->once())
             ->method('request')
             ->with(
                 'GET',
@@ -158,13 +216,16 @@ class GuzzleWrapperTest extends TestCase
                     ],
                 ]
             );
-        $wrapper = new GuzzleWrapper($this->http);
+
         $wrapper->get($this->uri);
     }
 
     public function testMethodPost()
     {
-        $this->http->expects($this->once())
+        $wrapper = new GuzzleWrapper();
+        $wrapper->setClient($this->psr18Client);
+
+        $this->psr18Client->expects($this->once())
             ->method('request')
             ->with(
                 'POST',
@@ -179,13 +240,15 @@ class GuzzleWrapperTest extends TestCase
                     'json' => ['foo' => 'bar'],
                 ]
             );
-        $wrapper = new GuzzleWrapper($this->http);
+
         $wrapper->post($this->uri, ['foo' => 'bar'], ['headers' => ['x-foo' => 'bar']]);
     }
 
     public function testMethodPatch()
     {
-        $this->http->expects($this->once())
+        $wrapper = new GuzzleWrapper();
+        $wrapper->setClient($this->psr18Client);
+        $this->psr18Client->expects($this->once())
             ->method('request')
             ->with(
                 'PATCH',
@@ -200,13 +263,15 @@ class GuzzleWrapperTest extends TestCase
                     'json' => ['foo' => 'bar'],
                 ]
             );
-        $wrapper = new GuzzleWrapper($this->http);
+
         $wrapper->patch($this->uri, ['foo' => 'bar'], ['headers' => ['x-foo' => 'bar']]);
     }
 
     public function testMethodDelete()
     {
-        $this->http->expects($this->once())
+        $wrapper = new GuzzleWrapper();
+        $wrapper->setClient($this->psr18Client);
+        $this->psr18Client->expects($this->once())
             ->method('request')
             ->with(
                 'DELETE',
@@ -220,7 +285,7 @@ class GuzzleWrapperTest extends TestCase
                     ],
                 ]
             );
-        $wrapper = new GuzzleWrapper($this->http);
-        $wrapper->delete($this->uri, [], ['headers' => ['x-foo' => 'bar']]);
+
+        $wrapper->delete($this->uri, ['headers' => ['x-foo' => 'bar']]);
     }
 }

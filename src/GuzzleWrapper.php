@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace OpenAgenda\Wrapper;
 
+use GuzzleHttp\Exception\GuzzleException;
+use League\Uri\Uri;
 use OpenAgenda\Client;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -13,6 +15,27 @@ class GuzzleWrapper extends HttpWrapper
      * @var \GuzzleHttp\Client|\Psr\Http\Client\ClientInterface
      */
     protected $http;
+
+    /**
+     * {@inheritDoc}
+     *
+     * @noinspection PhpMissingParentConstructorInspection
+     */
+    public function __construct(array $params = [])
+    {
+        $this->http = new \GuzzleHttp\Client($params);
+    }
+
+    /**
+     * Set client in wrapper. Useful for unit tests.
+     *
+     * @param \GuzzleHttp\Client $client Guzzle client
+     * @return void
+     */
+    public function setClient(\GuzzleHttp\Client $client): void
+    {
+        $this->http = $client;
+    }
 
     /**
      * @inheritDoc
@@ -58,57 +81,77 @@ class GuzzleWrapper extends HttpWrapper
     }
 
     /**
-     * @inheritDoc
+     * Call guzzle request and handle exceptions.
+     *
+     * @param string $method Request method
+     * @param \League\Uri\Uri $uri Request URI
+     * @param array $params Request params
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws \OpenAgenda\Wrapper\HttpWrapperException
      */
-    public function head($uri, array $options = []): ResponseInterface
+    protected function _request(string $method, Uri $uri, array $params): ResponseInterface
     {
-        $uri = $this->buildUri($uri);
-        $options = $this->prepareOptions($options);
-
-        return $this->http->request('HEAD', (string)$uri, $options);
+        $method = strtoupper($method);
+        try {
+            return $this->http->request($method, (string)$uri, $params);
+        } catch (GuzzleException $e) {
+            $message = sprintf('Wrapper %s request failed. %s', $method, $e->getMessage());
+            throw new HttpWrapperException($message, $e->getCode(), $e);
+        }
     }
 
     /**
      * @inheritDoc
      */
-    public function get($uri, array $data = [], array $options = []): ResponseInterface
+    public function head($uri, array $params = []): ResponseInterface
     {
         $uri = $this->buildUri($uri);
-        $options = $this->prepareOptions($options);
+        $params = $this->prepareOptions($params);
 
-        return $this->http->request('GET', (string)$uri, $options);
+        return $this->_request('HEAD', $uri, $params);
     }
 
     /**
      * @inheritDoc
      */
-    public function post($uri, array $data, array $options = []): ResponseInterface
+    public function get($uri, array $params = []): ResponseInterface
     {
         $uri = $this->buildUri($uri);
-        $options = $this->prepareOptions($options, $data);
+        $params = $this->prepareOptions($params);
 
-        return $this->http->request('POST', (string)$uri, $options);
+        return $this->_request('GET', $uri, $params);
     }
 
     /**
      * @inheritDoc
      */
-    public function patch($uri, array $data, array $options = []): ResponseInterface
+    public function post($uri, array $data, array $params = []): ResponseInterface
     {
         $uri = $this->buildUri($uri);
-        $options = $this->prepareOptions($options, $data);
+        $params = $this->prepareOptions($params, $data);
 
-        return $this->http->request('PATCH', (string)$uri, $options);
+        return $this->_request('POST', $uri, $params);
     }
 
     /**
      * @inheritDoc
      */
-    public function delete($uri, array $data, array $options = []): ResponseInterface
+    public function patch($uri, array $data, array $params = []): ResponseInterface
     {
         $uri = $this->buildUri($uri);
-        $options = $this->prepareOptions($options, $data);
+        $params = $this->prepareOptions($params, $data);
 
-        return $this->http->request('DELETE', (string)$uri, $options);
+        return $this->_request('PATCH', $uri, $params);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete($uri, array $params = []): ResponseInterface
+    {
+        $uri = $this->buildUri($uri);
+        $params = $this->prepareOptions($params);
+
+        return $this->_request('DELETE', $uri, $params);
     }
 }
