@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace OpenAgenda\Wrapper;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use League\Uri\Uri;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -96,7 +98,24 @@ class GuzzleWrapper extends HttpWrapper
             return $this->http->request($method, (string)$uri, $params);
         } catch (GuzzleException $e) {
             $message = sprintf('Wrapper %s request failed. %s', $method, $e->getMessage());
-            throw new HttpWrapperException($message, $e->getCode(), $e);
+            $new = new HttpWrapperException($message, $e->getCode(), $e);
+            $request = null;
+            $response = null;
+            if ($e instanceof ConnectException) {
+                $request = $e->getRequest();
+            } elseif ($e instanceof RequestException) {
+                $request = $e->getRequest();
+                $response = $e->getResponse();
+            }
+
+            if ($request) {
+                $new->setRequest($request);
+            }
+            if ($response) {
+                $new->setResponse($response);
+            }
+
+            throw $new;
         }
     }
 

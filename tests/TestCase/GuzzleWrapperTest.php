@@ -7,9 +7,12 @@ declare(strict_types=1);
 namespace OpenAgenda\Wrapper\Test\TestCase;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use League\Uri\Uri;
 use OpenAgenda\Wrapper\GuzzleWrapper;
 use OpenAgenda\Wrapper\HttpWrapperException;
@@ -130,6 +133,49 @@ class GuzzleWrapperTest extends TestCase
         $wrapper->sendRequest($this->request);
     }
 
+    public function testConnectException(): void
+    {
+        $wrapper = new GuzzleWrapper();
+        $wrapper->setClient($this->psr18Client);
+
+        $request = new Request('GET', (string)$this->uri);
+
+        $this->psr18Client->expects($this->once())
+            ->method('request')
+            ->willThrowException(new ConnectException('error', $request));
+
+        try {
+            $wrapper->get($this->uri);
+        } catch (HttpWrapperException $e) {
+            $this->assertEquals('Wrapper GET request failed. error', $e->getMessage());
+            $this->assertInstanceOf(ConnectException::class, $e->getPrevious());
+            $this->assertSame($request, $e->getRequest());
+            $this->assertNull($e->getResponse());
+        }
+    }
+
+    public function testRequestException(): void
+    {
+        $wrapper = new GuzzleWrapper();
+        $wrapper->setClient($this->psr18Client);
+
+        $request = new Request('GET', (string)$this->uri);
+        $response = new Response(200, [], '');
+
+        $this->psr18Client->expects($this->once())
+            ->method('request')
+            ->willThrowException(new RequestException('error', $request, $response));
+
+        try {
+            $wrapper->get($this->uri);
+        } catch (HttpWrapperException $e) {
+            $this->assertEquals('Wrapper GET request failed. error', $e->getMessage());
+            $this->assertInstanceOf(RequestException::class, $e->getPrevious());
+            $this->assertSame($request, $e->getRequest());
+            $this->assertSame($response, $e->getResponse());
+        }
+    }
+
     public static function dataExceptions(): array
     {
         return [
@@ -144,20 +190,23 @@ class GuzzleWrapperTest extends TestCase
     /**
      * @dataProvider dataExceptions
      */
-    public function testExceptions($method): void
+    public function testCallExceptions($method): void
     {
         $wrapper = new GuzzleWrapper();
         $wrapper->setClient($this->psr18Client);
 
-        $request = new Request($method, (string)$this->uri);
-
         $this->psr18Client->expects($this->once())
             ->method('request')
-            ->willThrowException(new RequestException('error', $request));
+            ->willThrowException(new TransferException('error'));
 
-        $this->expectException(HttpWrapperException::class);
-        $this->expectExceptionMessage(sprintf('Wrapper %s request failed. error', strtoupper($method)));
-        $wrapper->{$method}($this->uri, []);
+        try {
+            $wrapper->{$method}($this->uri, []);
+        } catch (HttpWrapperException $e) {
+            $this->assertEquals(sprintf('Wrapper %s request failed. error', strtoupper($method)), $e->getMessage());
+            $this->assertInstanceOf(TransferException::class, $e->getPrevious());
+            $this->assertNull($e->getRequest());
+            $this->assertNull($e->getResponse());
+        }
     }
 
     public function testExceptionContainGuzzleException(): void
