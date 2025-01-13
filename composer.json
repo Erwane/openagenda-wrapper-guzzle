@@ -21,7 +21,7 @@
     ],
     "require": {
         "php": "^7.2",
-        "openagenda/api-sdk": "dev-build-v3",
+        "erwane/openagenda-api": "3.0.*",
         "guzzlehttp/guzzle": "^v7.0"
     },
     "require-dev": {
