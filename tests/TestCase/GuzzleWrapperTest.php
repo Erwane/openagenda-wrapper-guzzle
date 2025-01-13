@@ -13,6 +13,7 @@ use GuzzleHttp\Psr7\Request;
 use League\Uri\Uri;
 use OpenAgenda\Wrapper\GuzzleWrapper;
 use OpenAgenda\Wrapper\HttpWrapperException;
+use OpenAgenda\Wrapper\HttpWrapperInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -59,7 +60,7 @@ class GuzzleWrapperTest extends TestCase
                 [
                     'headers' => [
                         'Accept' => 'application/json',
-                        'User-Agent' => \OpenAgenda\Client::USER_AGENT,
+                        'User-Agent' => HttpWrapperInterface::USER_AGENT,
                         'x-foo' => 'bar',
                     ],
                     'allow_redirects' => false,
@@ -71,7 +72,7 @@ class GuzzleWrapperTest extends TestCase
                 [
                     'headers' => [
                         'Accept' => 'application/json',
-                        'User-Agent' => \OpenAgenda\Client::USER_AGENT,
+                        'User-Agent' => HttpWrapperInterface::USER_AGENT,
                     ],
                     'allow_redirects' => false,
                     'json' => ['key' => 'value', 'other' => 23],
@@ -83,7 +84,7 @@ class GuzzleWrapperTest extends TestCase
                 [
                     'headers' => [
                         'Accept' => 'application/json',
-                        'User-Agent' => \OpenAgenda\Client::USER_AGENT,
+                        'User-Agent' => HttpWrapperInterface::USER_AGENT,
                     ],
                     'allow_redirects' => false,
                     'multipart' => [
@@ -189,7 +190,7 @@ class GuzzleWrapperTest extends TestCase
                 [
                     'allow_redirects' => false,
                     'headers' => [
-                        'User-Agent' => \OpenAgenda\Client::USER_AGENT,
+                        'User-Agent' => HttpWrapperInterface::USER_AGENT,
                         'Accept' => 'application/json',
                     ],
                 ]
@@ -211,7 +212,7 @@ class GuzzleWrapperTest extends TestCase
                 [
                     'allow_redirects' => false,
                     'headers' => [
-                        'User-Agent' => \OpenAgenda\Client::USER_AGENT,
+                        'User-Agent' => HttpWrapperInterface::USER_AGENT,
                         'Accept' => 'application/json',
                     ],
                 ]
@@ -233,7 +234,7 @@ class GuzzleWrapperTest extends TestCase
                 [
                     'allow_redirects' => false,
                     'headers' => [
-                        'User-Agent' => \OpenAgenda\Client::USER_AGENT,
+                        'User-Agent' => HttpWrapperInterface::USER_AGENT,
                         'Accept' => 'application/json',
                         'x-foo' => 'bar',
                     ],
@@ -256,7 +257,7 @@ class GuzzleWrapperTest extends TestCase
                 [
                     'allow_redirects' => false,
                     'headers' => [
-                        'User-Agent' => \OpenAgenda\Client::USER_AGENT,
+                        'User-Agent' => HttpWrapperInterface::USER_AGENT,
                         'Accept' => 'application/json',
                         'x-foo' => 'bar',
                     ],
@@ -279,7 +280,7 @@ class GuzzleWrapperTest extends TestCase
                 [
                     'allow_redirects' => false,
                     'headers' => [
-                        'User-Agent' => \OpenAgenda\Client::USER_AGENT,
+                        'User-Agent' => HttpWrapperInterface::USER_AGENT,
                         'Accept' => 'application/json',
                         'x-foo' => 'bar',
                     ],

@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace OpenAgenda\Wrapper;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use League\Uri\Uri;
-use OpenAgenda\Client;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -23,7 +23,7 @@ class GuzzleWrapper extends HttpWrapper
      */
     public function __construct(array $params = [])
     {
-        $this->http = new \GuzzleHttp\Client($params);
+        $this->http = new Client($params);
     }
 
     /**
@@ -32,7 +32,7 @@ class GuzzleWrapper extends HttpWrapper
      * @param \GuzzleHttp\Client $client Guzzle client
      * @return void
      */
-    public function setClient(\GuzzleHttp\Client $client): void
+    public function setClient(Client $client): void
     {
         $this->http = $client;
     }
@@ -56,15 +56,15 @@ class GuzzleWrapper extends HttpWrapper
     {
         $options['allow_redirects'] = false;
         $options['headers']['Accept'] = 'application/json';
-        $options['headers']['User-Agent'] = Client::USER_AGENT;
+        $options['headers']['User-Agent'] = HttpWrapperInterface::USER_AGENT;
 
         if ($data) {
             // Has resource (file)
-            $hasResource = array_filter($data, function ($value) {
+            $resources = array_filter($data, function ($value) {
                 return is_resource($value);
             });
 
-            if ($hasResource) {
+            if ($resources) {
                 $options['multipart'] = [];
                 foreach ($data as $key => $value) {
                     $options['multipart'][] = [
