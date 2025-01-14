@@ -13,7 +13,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use League\Uri\Uri;
+use GuzzleHttp\Psr7\Uri;
 use OpenAgenda\Wrapper\GuzzleWrapper;
 use OpenAgenda\Wrapper\HttpWrapperException;
 use OpenAgenda\Wrapper\HttpWrapperInterface;
@@ -49,7 +49,7 @@ class GuzzleWrapperTest extends TestCase
             ->getMock();
 
         $this->request = new Request('GET', 'https://example.com');
-        $this->uri = Uri::createFromString('https://example.com');
+        $this->uri = new Uri('https://example.com');
     }
 
     public static function dataPrepareOptions(): array
@@ -116,6 +116,14 @@ class GuzzleWrapperTest extends TestCase
         $results = $wrapper->prepareOptions($options, $data);
 
         $this->assertEquals($expected, $results);
+    }
+
+    public function testBuildUriFromUrl(): void
+    {
+        $wrapper = new GuzzleWrapper();
+        $uri = $wrapper->buildUri('https://example.com');
+
+        $this->assertInstanceOf(Uri::class, $uri);
     }
 
     public function testSendRequest()

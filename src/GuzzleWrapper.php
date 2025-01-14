@@ -7,9 +7,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
-use League\Uri\Uri;
+use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
 class GuzzleWrapper extends HttpWrapper
 {
@@ -83,10 +84,26 @@ class GuzzleWrapper extends HttpWrapper
     }
 
     /**
+     * Build uri.
+     *
+     * @param \Psr\Http\Message\UriInterface|string $url Url as string or UriInterface
+     * @return \Psr\Http\Message\UriInterface|\GuzzleHttp\Psr7\Uri
+     */
+    public function buildUri($url): UriInterface
+    {
+        $uri = $url;
+        if (is_string($url)) {
+            $uri = new Uri($url);
+        }
+
+        return $uri;
+    }
+
+    /**
      * Call guzzle request and handle exceptions.
      *
      * @param string $method Request method
-     * @param \League\Uri\Uri $uri Request URI
+     * @param \GuzzleHttp\Psr7\Uri $uri Request URI
      * @param array $params Request params
      * @return \Psr\Http\Message\ResponseInterface
      * @throws \OpenAgenda\Wrapper\HttpWrapperException
