@@ -8,7 +8,6 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -38,14 +37,6 @@ class GuzzleWrapper extends HttpWrapper
     public function setClient(Client $client): void
     {
         $this->http = $client;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function sendRequest(RequestInterface $request): ResponseInterface
-    {
-        return $this->http->sendRequest($request);
     }
 
     /**

@@ -126,21 +126,6 @@ class GuzzleWrapperTest extends TestCase
         $this->assertInstanceOf(Uri::class, $uri);
     }
 
-    public function testSendRequest()
-    {
-        $http = $this->getMockBuilder(Client::class)
-            ->onlyMethods(['sendRequest'])
-            ->getMock();
-
-        $http->expects($this->once())
-            ->method('sendRequest')
-            ->with($this->request);
-
-        $wrapper = new GuzzleWrapper();
-        $wrapper->setClient($http);
-        $wrapper->sendRequest($this->request);
-    }
-
     public function testConnectException(): void
     {
         $wrapper = new GuzzleWrapper();
@@ -251,7 +236,8 @@ class GuzzleWrapperTest extends TestCase
                         'Accept' => 'application/json',
                     ],
                 ]
-            );
+            )
+            ->willReturn(new Response(200));
 
         $wrapper->head($this->uri);
     }
@@ -273,7 +259,8 @@ class GuzzleWrapperTest extends TestCase
                         'Accept' => 'application/json',
                     ],
                 ]
-            );
+            )
+            ->willReturn(new Response(200));
 
         $wrapper->get($this->uri);
     }
@@ -297,7 +284,8 @@ class GuzzleWrapperTest extends TestCase
                     ],
                     'json' => ['foo' => 'bar'],
                 ]
-            );
+            )
+            ->willReturn(new Response(200));
 
         $wrapper->post($this->uri, ['foo' => 'bar'], ['headers' => ['x-foo' => 'bar']]);
     }
@@ -320,7 +308,8 @@ class GuzzleWrapperTest extends TestCase
                     ],
                     'json' => ['foo' => 'bar'],
                 ]
-            );
+            )
+            ->willReturn(new Response(200));
 
         $wrapper->patch($this->uri, ['foo' => 'bar'], ['headers' => ['x-foo' => 'bar']]);
     }
@@ -342,7 +331,8 @@ class GuzzleWrapperTest extends TestCase
                         'x-foo' => 'bar',
                     ],
                 ]
-            );
+            )
+            ->willReturn(new Response(200));
 
         $wrapper->delete($this->uri, ['headers' => ['x-foo' => 'bar']]);
     }
