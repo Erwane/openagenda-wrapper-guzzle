@@ -59,8 +59,14 @@ class GuzzleWrapper extends HttpWrapper
             });
 
             if ($resources) {
-                $options['multipart'] = [];
-                foreach ($data as $key => $value) {
+                $json = array_diff_key($data, $resources);
+                $options['multipart'] = [
+                    [
+                    'name' => 'data',
+                    'contents' => json_encode($json),
+                    ],
+                ];
+                foreach ($resources as $key => $value) {
                     $options['multipart'][] = [
                         'name' => $key,
                         'contents' => $value,

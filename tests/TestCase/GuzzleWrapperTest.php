@@ -92,8 +92,8 @@ class GuzzleWrapperTest extends TestCase
                     'allow_redirects' => false,
                     'multipart' => [
                         [
-                            'name' => 'key',
-                            'contents' => 'value',
+                            'name' => 'data',
+                            'contents' => json_encode(['key' => 'value']),
                         ],
                         [
                             'name' => 'image',

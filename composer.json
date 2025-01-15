@@ -21,6 +21,7 @@
     ],
     "require": {
         "php": "^7.2",
+        "ext-json": "*",
         "erwane/openagenda-api": "3.0.*",
         "guzzlehttp/guzzle": "^v6.0 | ^v7.0"
     },
