@@ -111,8 +111,6 @@ class GuzzleWrapper extends HttpWrapper
         try {
             return $this->http->request($method, (string)$uri, $params);
         } catch (GuzzleException $e) {
-            $message = sprintf('Wrapper %s request failed. %s', $method, $e->getMessage());
-            $new = new HttpWrapperException($message, $e->getCode(), $e);
             $request = null;
             $response = null;
             if ($e instanceof ConnectException) {
@@ -121,6 +119,11 @@ class GuzzleWrapper extends HttpWrapper
                 $request = $e->getRequest();
                 $response = $e->getResponse();
             }
+
+            $code = $response ? $response->getStatusCode() : $e->getCode();
+
+            $message = sprintf('Wrapper %s request failed. %s', $method, $e->getMessage());
+            $new = new HttpWrapperException($message, $code, $e);
 
             if ($request) {
                 $new->setRequest($request);
@@ -140,8 +143,17 @@ class GuzzleWrapper extends HttpWrapper
     {
         $uri = $this->buildUri($uri);
         $params = $this->prepareOptions($params);
+        try {
+            $response = $this->_request('HEAD', $uri, $params);
+        } catch (HttpWrapperException $e) {
+            // Head could return 4xx as valid response.
+            if ($e->getCode() >= 500) {
+                throw $e;
+            }
+            $response = $e->getResponse();
+        }
 
-        return $this->_request('HEAD', $uri, $params);
+        return $response;
     }
 
     /**
