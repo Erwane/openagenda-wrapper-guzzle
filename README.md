@@ -10,6 +10,7 @@ Guzzle wrapper for [erwane/openagenda-api](https://github.com/Erwane/openagenda-
 
 ## Version map
 
-| branch | OpenAgenda-API Package | PHP min |
-|--------|------------------------|---------|
-| 1.x    | ^3.0.0                 | PHP 7.2 |
+| version | OpenAgenda-API Package | PHP min |
+|---------|------------------------|---------|
+| ^1.0    | 3.0.*                  | PHP 7.2 |
+| ^2.0    | ^3.1                   | PHP 8.0 |
