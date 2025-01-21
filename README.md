@@ -14,3 +14,27 @@ Guzzle wrapper for [erwane/openagenda-api](https://github.com/Erwane/openagenda-
 |---------|------------------------|---------|
 | ^1.0    | 3.0.*                  | PHP 7.2 |
 | ^2.0    | ^3.1                   | PHP 8.0 |
+
+```php
+use OpenAgenda\OpenAgenda;
+use OpenAgenda\Wrapper\GuzzleWrapper
+
+// PSR-18 Http client.
+$guzzleOptions = ['timeout' => 2.0];
+$wrapper = new GuzzleWrapper($guzzleOptions);
+
+// PSR-16 Simple cache. Optional
+$cache = new Psr16Cache();
+
+// Create the OpenAgenda client. The public key is required for reading data (GET)
+// The private key is optional and only needed for writing data (POST, PUT, DELETE)
+$oa = new OpenAgenda([
+    'public_key' => 'my public key', // Required
+    'secret_key' => 'my secret key', // Optional, only for create/update/delete
+    'wrapper' => $wrapper, // Required
+    'cache' => $cache, // Optional
+    'defaultLang' => 'fr', // Optional
+]);
+```
+
+Check [OpenAgenda API lib](https://github.com/Erwane/openagenda-api/blob/3.x/README.md) for details.
