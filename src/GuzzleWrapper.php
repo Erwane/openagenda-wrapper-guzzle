@@ -8,15 +8,16 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 class GuzzleWrapper extends HttpWrapper
 {
     /**
-     * @var \GuzzleHttp\Client|\Psr\Http\Client\ClientInterface
+     * @var \Psr\Http\Client\ClientInterface|\GuzzleHttp\Client
      */
-    protected $http;
+    protected ClientInterface|Client $http;
 
     /**
      * {@inheritDoc}
@@ -84,9 +85,9 @@ class GuzzleWrapper extends HttpWrapper
      * Build uri.
      *
      * @param \Psr\Http\Message\UriInterface|string $url Url as string or UriInterface
-     * @return \Psr\Http\Message\UriInterface|\GuzzleHttp\Psr7\Uri
+     * @return \Psr\Http\Message\UriInterface
      */
-    public function buildUri($url): UriInterface
+    public function buildUri(UriInterface|string $url): UriInterface
     {
         $uri = $url;
         if (is_string($url)) {
