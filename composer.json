@@ -44,7 +44,6 @@
         "cscheck": "vendor/bin/phpcs -p -s src tests",
         "csfix": "vendor/bin/phpcbf src tests"
     },
-    "minimum-stability": "stable",
     "config": {
         "platform-check": true,
         "sort-packages": true,
